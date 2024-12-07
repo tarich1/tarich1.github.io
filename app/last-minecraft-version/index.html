@@ -6,7 +6,8 @@
     <title>Minecraft最終バージョン</title>
 </head>
 <body>
-    <h2 id="last">アップデートを取得中...</h2>
+    <h2 id="je">アップデートを取得中...</h2>
+    <h2 id="be">アップデートを取得中...</h2>
     <script>
         // JSONを取得し処理する関数
         async function fetchAndProcessJSON() {
@@ -21,7 +22,7 @@
                 const largestVersion = findLargestVersionId(jsonData.versions);
 
                 // 最も大きなバージョン番号をh2タグに設定
-                const lastLink = document.getElementById('last');
+                const lastLink = document.getElementById('je');
                 lastLink.textContent = largestVersion;
                 lastLink.href = `#${largestVersion}`; // 必要に応じてリンク先を変更可能
             } catch (error) {
@@ -52,6 +53,33 @@
 
         // メイン処理を呼び出す
         fetchAndProcessJSON();
+
+        // GitHub APIのURL
+        const apiUrl = "https://api.github.com/repos/Mojang/bedrock-samples/releases";
+        
+        // APIからデータを取得して処理
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok " + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // prereleaseがfalseのnameを抽出して最後の2桁を除く
+                const filteredNames = data
+                .filter(item => item.prerelease === false) // prereleaseがfalseのものを選択
+                .map(item => item.name.replace(/\.\d{1,2}$/, '')); // 最後の2桁を削除
+                // id="be"のh2タグに値を設定
+                const h2Element = document.getElementById('be');
+                if (h2Element) {
+                    h2Element.textContent = filteredNames.join(', '); // カンマ区切りで表示
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data: ", error);
+            });
+
     </script>
 </body>
 </html>
