@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set Largest Numeric ID</title>
+    <title>Set Largest Numeric Version</title>
 </head>
 <body>
     <a id="last" href="#">Placeholder</a>
@@ -18,32 +18,36 @@
                 const jsonData = await response.json();
 
                 // 最大の数値IDを取得する
-                const largestId = findLargestNumericId(jsonData.versions);
+                const largestVersion = findLargestVersionId(jsonData.versions);
 
-                // 最も大きなIDをaタグに設定
+                // 最も大きなバージョン番号をaタグに設定
                 const lastLink = document.getElementById('last');
-                lastLink.textContent = largestId;
-                lastLink.href = `#${largestId}`; // 必要に応じてリンク先を変更可能
+                lastLink.textContent = largestVersion;
+                lastLink.href = `#${largestVersion}`; // 必要に応じてリンク先を変更可能
             } catch (error) {
                 console.error("Error fetching or processing JSON:", error);
             }
         }
 
-        // IDの中から数値が最も大きい値を取得する関数
-        function findLargestNumericId(versions) {
-            return versions
+        // バージョン番号形式をフィルタして最大の値を取得する関数
+        function findLargestVersionId(versions) {
+            // バージョン番号形式のみにフィルタリング
+            const versionIds = versions
                 .map(version => version.id)
-                .map(id => id.match(/[\d.]+/g)) // IDから数値部分を抽出
-                .map(numbers => numbers ? numbers.map(parseFloat) : [0]) // 数値に変換
-                .reduce((largest, current) => {
-                    for (let i = 0; i < Math.max(largest.length, current.length); i++) {
-                        const a = largest[i] || 0;
-                        const b = current[i] || 0;
-                        if (a !== b) return a > b ? largest : current;
-                    }
-                    return largest;
-                }, [0])
-                .join('.'); // 数値部分を結合して元の形式に戻す
+                .filter(id => /^\d+(\.\d+)*$/.test(id)); // バージョン番号形式のみを取得
+
+            // バージョン番号を比較して最大値を選ぶ
+            return versionIds.reduce((largest, current) => {
+                const largestParts = largest.split('.').map(Number);
+                const currentParts = current.split('.').map(Number);
+
+                for (let i = 0; i < Math.max(largestParts.length, currentParts.length); i++) {
+                    const a = largestParts[i] || 0;
+                    const b = currentParts[i] || 0;
+                    if (a !== b) return a > b ? largest : current;
+                }
+                return largest;
+            }, "0.0.0"); // 初期値を適当に設定
         }
 
         // メイン処理を呼び出す
