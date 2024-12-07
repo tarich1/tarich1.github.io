@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Largest Numeric ID</title>
+</head>
+<body>
+    <a id="last" href="#">Placeholder</a>
+    <script>
+        // JSONを取得し処理する関数
+        async function fetchAndProcessJSON() {
+            try {
+                const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const jsonData = await response.json();
+
+                // 最大の数値IDを取得する
+                const largestId = findLargestNumericId(jsonData.versions);
+
+                // 最も大きなIDをaタグに設定
+                const lastLink = document.getElementById('last');
+                lastLink.textContent = largestId;
+                lastLink.href = `#${largestId}`; // 必要に応じてリンク先を変更可能
+            } catch (error) {
+                console.error("Error fetching or processing JSON:", error);
+            }
+        }
+
+        // IDの中から数値が最も大きい値を取得する関数
+        function findLargestNumericId(versions) {
+            return versions
+                .map(version => version.id)
+                .map(id => id.match(/[\d.]+/g)) // IDから数値部分を抽出
+                .map(numbers => numbers ? numbers.map(parseFloat) : [0]) // 数値に変換
+                .reduce((largest, current) => {
+                    for (let i = 0; i < Math.max(largest.length, current.length); i++) {
+                        const a = largest[i] || 0;
+                        const b = current[i] || 0;
+                        if (a !== b) return a > b ? largest : current;
+                    }
+                    return largest;
+                }, [0])
+                .join('.'); // 数値部分を結合して元の形式に戻す
+        }
+
+        // メイン処理を呼び出す
+        fetchAndProcessJSON();
+    </script>
+</body>
+</html>
