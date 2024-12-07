@@ -93,8 +93,8 @@
                 // 最も大きいバージョンを取得
                 const largestVersion = filteredNames.sort(compareVersions)[0];
                 
-                // 最後の2桁を除去
-                const trimmedVersion = largestVersion.replace(/\.\d{1,2}$/, '');
+                // 最初の1文字を除去し、最後の2桁を削除
+                const trimmedVersion = largestVersion.substring(1).replace(/\.\d{1,2}$/, '');
                 
                 // id="be"のh2タグに値を設定
                 const h2Element = document.getElementById('be');
