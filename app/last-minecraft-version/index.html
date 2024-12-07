@@ -6,8 +6,8 @@
     <title>Minecraft最終バージョン</title>
 </head>
 <body>
-    <h2 id="je">アップデートを取得中...</h2>
-    <h2 id="be">アップデートを取得中...</h2>
+    <h2>Java版：</h2><h2 id="je">アップデートを取得中...</h2>
+    <h2>統合版：</h2><h2 id="be">アップデートを取得中...</h2>
     <script>
         // JSONを取得し処理する関数
         async function fetchAndProcessJSON() {
@@ -54,8 +54,23 @@
         // メイン処理を呼び出す
         fetchAndProcessJSON();
 
-        // GitHub APIのURL
+            // GitHub APIのURL
         const apiUrl = "https://api.github.com/repos/Mojang/bedrock-samples/releases";
+        
+        // バージョンを比較するためのヘルパー関数
+        function compareVersions(a, b) {
+            const aParts = a.split('.').map(Number);
+            const bParts = b.split('.').map(Number);
+            
+            for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+                const aValue = aParts[i] || 0;
+                const bValue = bParts[i] || 0;
+                if (aValue !== bValue) {
+                    return bValue - aValue;
+                }
+            }
+            return 0;
+        }
         
         // APIからデータを取得して処理
         fetch(apiUrl)
@@ -66,19 +81,31 @@
                 return response.json();
             })
             .then(data => {
-                // prereleaseがfalseのnameを抽出して最後の2桁を除く
+                // prereleaseがfalseのnameを抽出
                 const filteredNames = data
-                .filter(item => item.prerelease === false) // prereleaseがfalseのものを選択
-                .map(item => item.name.replace(/\.\d{1,2}$/, '')); // 最後の2桁を削除
+                    .filter(item => item.prerelease === false)
+                    .map(item => item.name);
+                
+                if (filteredNames.length === 0) {
+                    throw new Error("No valid releases found");
+                }
+                
+                // 最も大きいバージョンを取得
+                const largestVersion = filteredNames.sort(compareVersions)[0];
+                
+                // 最後の2桁を除去
+                const trimmedVersion = largestVersion.replace(/\.\d{1,2}$/, '');
+                
                 // id="be"のh2タグに値を設定
                 const h2Element = document.getElementById('be');
                 if (h2Element) {
-                    h2Element.textContent = filteredNames.join(', '); // カンマ区切りで表示
+                    h2Element.textContent = trimmedVersion;
                 }
             })
             .catch(error => {
-                console.error("Error fetching data: ", error);
+                console.error("Error fetching or processing data: ", error);
             });
+
 
     </script>
 </body>
