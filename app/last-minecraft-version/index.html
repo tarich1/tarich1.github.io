@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set Largest Numeric Version</title>
+    <title>Minecraft最終バージョン</title>
 </head>
 <body>
-    <a id="last" href="#">Placeholder</a>
+    <h2 id="last">アップデートを取得中...</h2>
     <script>
         // JSONを取得し処理する関数
         async function fetchAndProcessJSON() {
@@ -20,7 +20,7 @@
                 // 最大の数値IDを取得する
                 const largestVersion = findLargestVersionId(jsonData.versions);
 
-                // 最も大きなバージョン番号をaタグに設定
+                // 最も大きなバージョン番号をh2タグに設定
                 const lastLink = document.getElementById('last');
                 lastLink.textContent = largestVersion;
                 lastLink.href = `#${largestVersion}`; // 必要に応じてリンク先を変更可能
