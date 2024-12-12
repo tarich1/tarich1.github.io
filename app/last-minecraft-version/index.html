@@ -61,59 +61,37 @@
 
         // ここから統合版
         
-        // GitHub APIのURL
-        const apiUrl = "https://api.github.com/repos/Mojang/bedrock-samples/releases";
-        
-        // バージョンを比較するためのヘルパー関数
-        function compareVersions(a, b) {
-            const aParts = a.split('.').map(Number);
-            const bParts = b.split('.').map(Number);
-            
-            for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-                const aValue = aParts[i] || 0;
-                const bValue = bParts[i] || 0;
-                if (aValue !== bValue) {
-                    return bValue - aValue;
+        // JSONデータを取得して処理する関数
+        async function fetchAndDisplayMaxVersion() {
+            const url = "https://launchercontent.mojang.com/bedrockPatchNotes.json";
+
+            try {
+                // JSONデータを取得
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+
+                // 最大バージョンを探す
+                const maxVersionEntry = data.entries.reduce((max, entry) => {
+                    return parseFloat(entry.version) > parseFloat(max.version) ? entry : max;
+                }, data.entries[0]);
+                
+                // h2タグに挿入
+                const h2Element = document.getElementById('be');
+                if (h2Element && maxVersionEntry) {
+                    h2Element.textContent = maxVersionEntry.title;
                 }
             }
-            return 0;
+            catch (error) {
+                console.error("データ取得中にエラーが発生しました:", error)
+            }
         }
         
-        // APIからデータを取得して処理
-        fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok " + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // prereleaseがfalseのnameを抽出
-                const filteredNames = data
-                    .filter(item => item.prerelease === false)
-                    .map(item => item.name);
-                
-                if (filteredNames.length === 0) {
-                    throw new Error("No valid releases found");
-                }
-                
-                // 最も大きいバージョンを取得
-                const largestVersion = filteredNames.sort(compareVersions)[0];
-                
-                // 最初の1文字を除去し、最後の2桁を削除
-                const trimmedVersion = largestVersion.substring(1).replace(/\.\d{1,2}$/, '');
-                
-                // id="be"のh2タグに値を設定
-                const h2Element = document.getElementById('be');
-                if (h2Element) {
-                    h2Element.textContent = trimmedVersion;
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching or processing data: ", error);
-            });
-
-
+        // DOMが準備できたら関数を実行
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayMaxVersion);
     </script>
 </body>
 </html>
