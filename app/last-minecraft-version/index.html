@@ -78,11 +78,14 @@
                 const maxVersionEntry = data.entries.reduce((max, entry) => {
                     return parseFloat(entry.version) > parseFloat(max.version) ? entry : max;
                 }, data.entries[0]);
+
+                // 末尾にUpdateが付いている場合は取り除く
+                const cleanedTitle = maxVersionEntry.title.replace(/ Update$/, "");
                 
                 // h2タグに挿入
                 const h2Element = document.getElementById('be');
                 if (h2Element && maxVersionEntry) {
-                    h2Element.textContent = maxVersionEntry.title;
+                    h2Element.textContent = cleanedTitle;
                 }
             }
             catch (error) {
